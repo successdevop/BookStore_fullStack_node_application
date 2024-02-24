@@ -12,14 +12,16 @@ const corsOptions = {
   credential: true,
   optionSuccessStatus: 200,
 };
+
 // middlewares
 app.use(cors(corsOptions));
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
-app.use("/api/v1/users", userRouter);
+app.use("/api/v1/user", userRouter);
 
 // app listening port
 const PORT = process.env.PORT || 5000;
+
 const start = async () => {
   try {
     // database
