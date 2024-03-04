@@ -4,6 +4,7 @@ const express = require("express");
 const cors = require("cors");
 const app = express();
 
+const database = require("./DB/connect");
 const userRouter = require("./Routes/userRouter");
 
 // cors options
@@ -20,13 +21,14 @@ app.use(express.urlencoded({ extended: true }));
 app.use("/api/v1/user", userRouter);
 
 // app listening port
-const PORT = process.env.PORT || 5000;
+const PORT = process.env.PORT || 4000;
 
 const start = async () => {
   try {
     // database
+    await database(process.env.MONGO_URL);
     app.listen(PORT, () => {
-      console.log(`Server is running on port : ${PORT}`);
+      console.log(`Database Connected And Server Running on port : ${PORT}`);
     });
   } catch (error) {
     console.log(error);
