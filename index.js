@@ -6,6 +6,8 @@ const app = express();
 
 const database = require("./DB/connect");
 const userRouter = require("./Routes/userRouter");
+const bookRouter = require("./Routes/bookRouter");
+const { verifyUserToken } = require("./Middlewares/verifyUserToken");
 
 // cors options
 const corsOptions = {
@@ -19,6 +21,7 @@ app.use(cors(corsOptions));
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 app.use("/api/v1/user", userRouter);
+app.use("/api/v1/book", verifyUserToken, bookRouter);
 
 // app listening port
 const PORT = process.env.PORT || 4000;

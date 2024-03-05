@@ -12,6 +12,7 @@ const {
 } = require("../Helpers/userHelpers");
 const User = require("../Models/UsersModel");
 const { StatusCodes } = require("http-status-codes");
+const Account = require("../Models/AccountModel");
 
 // == REGISTER NEW USER == //
 const registerNewUser = async (req, res) => {
@@ -56,6 +57,11 @@ const registerNewUser = async (req, res) => {
 
     const newUser = new User({ ...value });
     await newUser.save();
+
+    const newAccount = new Account({
+      email: newUser.email,
+    });
+    await newAccount.save();
     newUser.password = undefined;
 
     res.status(StatusCodes.CREATED).json({
