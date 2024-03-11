@@ -5,6 +5,8 @@ const cors = require("cors");
 const app = express();
 
 const database = require("./DB/connect");
+const authRouter = require("./Routes/authRouter");
+const adminRouter = require("./Routes/adminRouter");
 const userRouter = require("./Routes/userRouter");
 const bookRouter = require("./Routes/bookRouter");
 const { verifyUserToken } = require("./Middlewares/verifyUserToken");
@@ -20,6 +22,8 @@ const corsOptions = {
 app.use(cors(corsOptions));
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
+app.use("/api/v1/auth", authRouter);
+app.use("/api/v1/admin", adminRouter);
 app.use("/api/v1/user", userRouter);
 app.use("/api/v1/book", verifyUserToken, bookRouter);
 

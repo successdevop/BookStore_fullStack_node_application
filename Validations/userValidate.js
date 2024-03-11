@@ -19,7 +19,7 @@ const validateNewUser = (user) => {
   return schema.validate(user);
 };
 
-const userLogin = (user) => {
+const validateUserLogin = (user) => {
   const schema = Joi.object({
     email: Joi.string().email().required(),
     password: Joi.string().min(8).required(),
@@ -28,7 +28,7 @@ const userLogin = (user) => {
   return schema.validate(user);
 };
 
-const updateUser = (user) => {
+const validateUpdateUser = (user) => {
   const schema = Joi.object({
     userName: Joi.string().alphanum().min(3).max(30),
     firstName: Joi.string().alphanum().min(3).max(30),
@@ -40,4 +40,4 @@ const updateUser = (user) => {
   return schema.validate(user);
 };
 
-module.exports = { validateNewUser, userLogin, updateUser };
+module.exports = { validateNewUser, validateUserLogin, validateUpdateUser };

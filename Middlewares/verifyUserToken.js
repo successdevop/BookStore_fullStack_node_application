@@ -5,41 +5,38 @@ const { StatusCodes } = require("http-status-codes");
 const verifyUserToken = async (req, res, next) => {
   try {
     const token = req.headers.authorization.split(" ")[1];
-    if (token || token !== undefined) {
-      const decoded = jwt.verify(token, process.env.JWT_SECRET);
-      if (decoded.id && decoded.email) {
-        const user = await User.findOne({ email: decoded.email });
-        if (user) {
-          if (user.status === "Blocked") {
-            return res.status(StatusCodes.UNAUTHORIZED).json({
-              status: "error",
-              ok: false,
-              msg: "Account Blocked, please contact the Admin",
-            });
-          } else if (user.status === "Deleted") {
-            return res.status(StatusCodes.UNAUTHORIZED).json({
-              status: "error",
-              ok: false,
-              msg: "Account not found",
-            });
-          } else {
-            req.user = user;
-            next();
-          }
+    if (!token || token == undefined) {
+      return res
+        .status(StatusCodes.UNAUTHORIZED)
+        .json({ status: "error", ok: false, msg: "Invalid credentials" });
+    }
+    const decoded = jwt.verify(token, process.env.JWT_SECRET);
+    if (decoded.id && decoded.email) {
+      const user = await User.findOne({ email: decoded.email }).select(
+        "-password"
+      );
+      if (user) {
+        if (user.status === "Deleted") {
+          return res.status(StatusCodes.UNAUTHORIZED).json({
+            status: "error",
+            ok: false,
+            msg: "Account not found",
+          });
+        } else if (user.status === "Blocked") {
+          return res.status(StatusCodes.UNAUTHORIZED).json({
+            status: "error",
+            ok: false,
+            msg: "Account Blocked, please contact the Admin",
+          });
         } else {
-          return res
-            .status(StatusCodes.UNAUTHORIZED)
-            .json({ status: "error", ok: false, msg: "Invalid credentials" });
+          req.user = user;
+          next();
         }
       } else {
         return res
           .status(StatusCodes.UNAUTHORIZED)
           .json({ status: "error", ok: false, msg: "Invalid credentials" });
       }
-    } else {
-      return res
-        .status(StatusCodes.UNAUTHORIZED)
-        .json({ status: "error", ok: false, msg: "Invalid credentials" });
     }
   } catch (error) {
     console.log(error);

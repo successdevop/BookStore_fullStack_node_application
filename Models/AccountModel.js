@@ -2,7 +2,12 @@ const mongoose = require("mongoose");
 
 const accountSchema = new mongoose.Schema(
   {
-    email: {
+    userId: {
+      type: String,
+      trim: true,
+      required: true,
+    },
+    userEmail: {
       type: String,
       trim: true,
       required: true,
