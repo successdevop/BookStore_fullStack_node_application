@@ -29,9 +29,9 @@ const verifyAdminToken = async (req, res, next) => {
           return res.status(StatusCodes.UNAUTHORIZED).json({
             status: "error",
             ok: false,
-            msg: "Account blocked, please contact the Super Admin",
+            msg: "Admin account blocked, please contact the Super Admin",
           });
-        } else if (admin.role === "admin") {
+        } else if (admin.role !== "admin") {
           return res.status(StatusCodes.UNAUTHORIZED).json({
             status: "error",
             ok: false,
@@ -88,9 +88,9 @@ const verifySuperAdminToken = async (req, res, next) => {
           return res.status(StatusCodes.UNAUTHORIZED).json({
             status: "error",
             ok: false,
-            msg: "Account blocked, please contact the Super Admin",
+            msg: "Admin account blocked, please contact the Super Admin",
           });
-        } else if (superAdmin.role === "super_admin") {
+        } else if (superAdmin.role !== "super_admin") {
           return res.status(StatusCodes.UNAUTHORIZED).json({
             status: "error",
             ok: false,
@@ -114,13 +114,11 @@ const verifySuperAdminToken = async (req, res, next) => {
     }
   } catch (error) {
     console.log(error);
-    return res
-      .status(StatusCodes.UNAUTHORIZED)
-      .json({
-        status: "error",
-        ok: false,
-        msg: "Super Admin Not Authenticated",
-      });
+    return res.status(StatusCodes.UNAUTHORIZED).json({
+      status: "error",
+      ok: false,
+      msg: "Super Admin Not Authenticated",
+    });
   }
 };
 
