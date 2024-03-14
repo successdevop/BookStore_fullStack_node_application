@@ -6,6 +6,7 @@ const {
   getASingleBook,
   updateASingleBook,
   deleteASingleBook,
+  requestBookPriceChangeByUser,
 } = require("../Controllers/bookController");
 const { verifyUserToken } = require("../Middlewares/verifyUserToken");
 const bookRoute = express.Router();
@@ -15,6 +16,9 @@ bookRoute
   .get(getAllBooks)
   .post(verifyUserToken, createANewBook)
   .delete(verifyUserToken, deleteAllBooks);
+bookRoute
+  .route("/changePrice")
+  .post(verifyUserToken, requestBookPriceChangeByUser);
 bookRoute
   .route("/:id")
   .get(getASingleBook)

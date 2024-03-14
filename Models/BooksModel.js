@@ -23,6 +23,7 @@ const bookSchema = new mongoose.Schema(
     bookStatus: {
       type: String,
       required: true,
+      enum: ["Pending", "Published", "Rejected"],
       default: "Pending",
     },
     createdBy: {

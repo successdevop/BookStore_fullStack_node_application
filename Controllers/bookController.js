@@ -1,6 +1,11 @@
 const { StatusCodes } = require("http-status-codes");
-const { validateNewBook, updateBook } = require("../Validations/bookValidate");
+const {
+  validateNewBook,
+  updateBook,
+  validateChangeBookPrice,
+} = require("../Validations/bookValidate");
 const Book = require("../Models/BooksModel");
+const ChangePrice = require("../Models/ChangePriceModel");
 
 // == GET ALL BOOKS == //
 const getAllBooks = async (req, res) => {
@@ -274,8 +279,47 @@ const deleteAllBooks = async (req, res) => {
   });
 };
 
-const requestPriceChangeByUser = async (req, res) => {
+const requestBookPriceChangeByUser = async (req, res) => {
   try {
+    const { error, value } = validateChangeBookPrice(req.body);
+    if (error) {
+      console.log(error);
+      return res
+        .status(StatusCodes.BAD_REQUEST)
+        .json({ status: "error", ok: false, msg: error.details[0].message });
+    }
+
+    if (value.newPrice < 1) {
+      return res.status(StatusCodes.BAD_REQUEST).json({
+        status: "error",
+        ok: false,
+        msg: "Book price must be greater than 0",
+      });
+    }
+
+    const book = await Book.findById(value.bookId);
+    if (!book) {
+      return res.status(StatusCodes.BAD_REQUEST).json({
+        status: "error",
+        ok: false,
+        msg: "Book not found",
+      });
+    }
+
+    const newPrice = new ChangePrice({
+      email: req.user.email,
+      userId: req.user._id,
+      bookId: book._id,
+      newPrice: value.newPrice,
+      description: value.description,
+    });
+    await newPrice.save();
+
+    res.status(StatusCodes.CREATED).json({
+      status: "success",
+      ok: true,
+      msg: "Request for change in price sent, awaiting Admin confirmation",
+    });
   } catch (error) {
     console.log(error);
     res
@@ -291,4 +335,5 @@ module.exports = {
   updateASingleBook,
   deleteASingleBook,
   deleteAllBooks,
+  requestBookPriceChangeByUser,
 };

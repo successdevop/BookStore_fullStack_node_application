@@ -11,14 +11,20 @@ const validateNewBook = (book) => {
   return schema.validate(book);
 };
 
-const updateBook = (book) => {
+const validateChangeBookPrice = (book) => {
   const schema = Joi.object({
-    bookName: Joi.string().min(3).max(50),
-    bookAuthor: Joi.string().min(3).max(50),
-    bookQuantity: Joi.number(),
-    bookPrice: Joi.number(),
+    bookId: Joi.string().min(3).max(200).required(),
+    description: Joi.string().min(3).max(2000).required(),
+    newPrice: Joi.number().required(),
   });
   return schema.validate(book);
 };
 
-module.exports = { validateNewBook, updateBook };
+const updateBook = (book) => {
+  const schema = Joi.object({
+    bookQuantity: Joi.number(),
+  });
+  return schema.validate(book);
+};
+
+module.exports = { validateNewBook, updateBook, validateChangeBookPrice };

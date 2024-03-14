@@ -10,6 +10,8 @@ const {
 } = require("../Helpers/adminHelpers");
 const User = require("../Models/UsersModel");
 const Admin = require("../Models/AdminModel");
+const ChangePrice = require("../Models/ChangePriceModel");
+const Book = require("../Models/BooksModel");
 
 // == REGISTER NEW ADMIN == //
 const createNewAdmin = async (req, res) => {
@@ -275,6 +277,174 @@ const deleteAUserByAdmin = async (req, res) => {
   }
 };
 
+// == GET ALL BOOK PRICE CHANGE REQUEST BY ADMIN == //
+const getAllBookPriceChangeRequestByAdmin = async (req, res) => {
+  try {
+    const allBookPriceChangeRequest = await ChangePrice.find({});
+
+    if (allBookPriceChangeRequest.length < 1) {
+      return res.status(StatusCodes.OK).json({
+        status: "success",
+        ok: true,
+        msg: "No Book Price Change Request yet",
+      });
+    }
+
+    return res.status(StatusCodes.OK).json({
+      status: "success",
+      ok: true,
+      allBookPriceChangeRequest,
+    });
+  } catch (error) {
+    console.log(error);
+    res
+      .status(StatusCodes.INTERNAL_SERVER_ERROR)
+      .json({ status: "error", ok: false, msg: error.message });
+  }
+};
+
+// == ACCEPT BOOK PRICE CHANGE REQUEST BY ADMIN == //
+const acceptBookPriceChangeByAdmin = async (req, res) => {
+  try {
+    const changeBookPriceId = req.params.id;
+    if (!changeBookPriceId) {
+      return res.status(StatusCodes.BAD_REQUEST).json({
+        status: "error",
+        ok: false,
+        msg: "Provide a valid price change Id",
+      });
+    }
+
+    const bookChangeRequest = await ChangePrice.findById(changeBookPriceId);
+    if (!bookChangeRequest) {
+      return res.status(StatusCodes.BAD_REQUEST).json({
+        status: "error",
+        ok: false,
+        msg: "Book Price Change Request Not Found",
+      });
+    }
+
+    if (bookChangeRequest.status === "Rejected") {
+      return res.status(StatusCodes.BAD_REQUEST).json({
+        status: "error",
+        ok: false,
+        msg: "Book Price Change Request Already Rejected",
+      });
+    }
+
+    if (bookChangeRequest.status === "Accepted") {
+      return res.status(StatusCodes.BAD_REQUEST).json({
+        status: "error",
+        ok: false,
+        msg: "Book Price Change Request Already Accepted",
+      });
+    }
+
+    const book = await Book.findOne({ _id: bookChangeRequest.bookId });
+    if (!book) {
+      return res.status(StatusCodes.BAD_REQUEST).json({
+        status: "error",
+        ok: false,
+        msg: "Book Not found",
+      });
+    }
+
+    if (book.bookStatus === "Pending" || book.bookStatus === "Rejected") {
+      return res.status(StatusCodes.BAD_REQUEST).json({
+        status: "error",
+        ok: false,
+        msg: "Book Price Change Request Can Only Be Made For Published Books",
+      });
+    }
+
+    book.bookPrice = bookChangeRequest.newPrice;
+    await book.save();
+    bookChangeRequest.status = "Accepted";
+    await bookChangeRequest.save();
+
+    return res.status(StatusCodes.OK).json({
+      status: "success",
+      ok: true,
+      msg: "Book Price Change Request Accepted Successfully",
+    });
+  } catch (error) {
+    console.log(error);
+    res
+      .status(StatusCodes.INTERNAL_SERVER_ERROR)
+      .json({ status: "error", ok: false, msg: error.message });
+  }
+};
+
+// == REJECT BOOK PRICE CHANGE REQUEST BY ADMIN == //
+const rejectBookPriceChangeByAdmin = async (req, res) => {
+  try {
+    const changeBookPriceId = req.params.id;
+    if (!changeBookPriceId) {
+      return res.status(StatusCodes.BAD_REQUEST).json({
+        status: "error",
+        ok: false,
+        msg: "Provide a valid price change Id",
+      });
+    }
+
+    const bookChangeRequest = await ChangePrice.findById(changeBookPriceId);
+    if (!bookChangeRequest) {
+      return res.status(StatusCodes.BAD_REQUEST).json({
+        status: "error",
+        ok: false,
+        msg: "Book Price Change Request Not Found",
+      });
+    }
+
+    if (bookChangeRequest.status === "Rejected") {
+      return res.status(StatusCodes.BAD_REQUEST).json({
+        status: "error",
+        ok: false,
+        msg: "Book Price Change Request Already Rejected",
+      });
+    }
+
+    if (bookChangeRequest.status === "Accepted") {
+      return res.status(StatusCodes.BAD_REQUEST).json({
+        status: "error",
+        ok: false,
+        msg: "Book Price Change Request Already Accepted",
+      });
+    }
+
+    const book = await Book.findOne({ _id: bookChangeRequest.bookId });
+    if (!book) {
+      return res.status(StatusCodes.BAD_REQUEST).json({
+        status: "error",
+        ok: false,
+        msg: "Book Not found",
+      });
+    }
+
+    if (book.bookStatus === "Pending" || book.bookStatus === "Rejected") {
+      return res.status(StatusCodes.BAD_REQUEST).json({
+        status: "error",
+        ok: false,
+        msg: "Book Price Change Request Can Only Be Made For Published Books",
+      });
+    }
+
+    bookChangeRequest.status = "Rejected";
+    await bookChangeRequest.save();
+
+    return res.status(StatusCodes.OK).json({
+      status: "success",
+      ok: true,
+      msg: "Book Price Change Request Rejected",
+    });
+  } catch (error) {
+    console.log(error);
+    res
+      .status(StatusCodes.INTERNAL_SERVER_ERROR)
+      .json({ status: "error", ok: false, msg: error.message });
+  }
+};
+
 module.exports = {
   createNewAdmin,
   loginAdmin,
@@ -282,4 +452,7 @@ module.exports = {
   getASingleUserByAdmin,
   changeUserStatusByAdmin,
   deleteAUserByAdmin,
+  getAllBookPriceChangeRequestByAdmin,
+  acceptBookPriceChangeByAdmin,
+  rejectBookPriceChangeByAdmin,
 };

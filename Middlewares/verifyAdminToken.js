@@ -31,12 +31,6 @@ const verifyAdminToken = async (req, res, next) => {
             ok: false,
             msg: "Admin account blocked, please contact the Super Admin",
           });
-        } else if (admin.role !== "admin") {
-          return res.status(StatusCodes.UNAUTHORIZED).json({
-            status: "error",
-            ok: false,
-            msg: "You are not authorized to carryout this actions",
-          });
         } else {
           req.admin = admin;
           next();
