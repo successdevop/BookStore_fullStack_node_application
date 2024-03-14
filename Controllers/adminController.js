@@ -133,7 +133,6 @@ const loginAdmin = async (req, res) => {
 // == GET ALL USERS BY ADMIN == //
 const getAllUsersByAdmin = async (req, res) => {
   try {
-    console.log(req.superAdmin);
     if (req.superAdmin.role !== "super_admin") {
       return res.status(StatusCodes.UNAUTHORIZED).json({
         status: "error",
@@ -191,7 +190,7 @@ const getASingleUserByAdmin = async (req, res) => {
   }
 };
 
-// == GET A SINGLE USER BY ADMIN == //
+// == CHANGE A USER STATUS BY ADMIN == //
 const changeUserStatusByAdmin = async (req, res) => {
   try {
     if (req.superAdmin.role !== "super_admin") {
@@ -239,10 +238,48 @@ const changeUserStatusByAdmin = async (req, res) => {
   }
 };
 
+// == DELETE A USER BY ADMIN == //
+const deleteAUserByAdmin = async (req, res) => {
+  try {
+    const { id } = req.params;
+    if (!id) {
+      return res
+        .status(StatusCodes.BAD_REQUEST)
+        .json({ status: "error", ok: false, msg: "Provide a valid user id" });
+    }
+    const user = await User.findById(id);
+    if (!user) {
+      return res
+        .status(StatusCodes.BAD_REQUEST)
+        .json({ status: "error", ok: false, msg: "User not found" });
+    }
+    if (user && user.status === "Deleted") {
+      return res
+        .status(StatusCodes.BAD_REQUEST)
+        .json({ status: "error", ok: false, msg: "Account already deleted" });
+    }
+
+    user.status = "Deleted";
+    await user.save();
+
+    return res.status(StatusCodes.OK).json({
+      status: "success",
+      ok: true,
+      msg: "Account deleted",
+    });
+  } catch (error) {
+    console.log(error);
+    res
+      .status(StatusCodes.INTERNAL_SERVER_ERROR)
+      .json({ status: "error", ok: false, msg: error.message });
+  }
+};
+
 module.exports = {
   createNewAdmin,
   loginAdmin,
   getAllUsersByAdmin,
   getASingleUserByAdmin,
   changeUserStatusByAdmin,
+  deleteAUserByAdmin,
 };

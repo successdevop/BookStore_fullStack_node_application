@@ -1,5 +1,5 @@
 const { StatusCodes } = require("http-status-codes");
-const { updateUser } = require("../Validations/userValidate");
+const { validateUpdateUser } = require("../Validations/userValidate");
 const User = require("../Models/UsersModel");
 
 // == GET A USER == //
@@ -40,7 +40,7 @@ const getAUser = async (req, res) => {
 const updateAUser = async (req, res) => {
   try {
     const { id } = req.params;
-    const { error, value } = updateUser(req.body);
+    const { error, value } = validateUpdateUser(req.body);
     if (error) {
       console.log(error);
       return res

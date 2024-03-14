@@ -274,6 +274,16 @@ const deleteAllBooks = async (req, res) => {
   });
 };
 
+const requestPriceChangeByUser = async (req, res) => {
+  try {
+  } catch (error) {
+    console.log(error);
+    res
+      .status(StatusCodes.INTERNAL_SERVER_ERROR)
+      .json({ status: "error", ok: false, msg: error.message });
+  }
+};
+
 module.exports = {
   getAllBooks,
   createANewBook,

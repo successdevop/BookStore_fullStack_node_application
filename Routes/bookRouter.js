@@ -7,13 +7,14 @@ const {
   updateASingleBook,
   deleteASingleBook,
 } = require("../Controllers/bookController");
+const { verifyUserToken } = require("../Middlewares/verifyUserToken");
 const bookRoute = express.Router();
 
 bookRoute
   .route("/")
   .get(getAllBooks)
-  .post(createANewBook)
-  .delete(deleteAllBooks);
+  .post(verifyUserToken, createANewBook)
+  .delete(verifyUserToken, deleteAllBooks);
 bookRoute
   .route("/:id")
   .get(getASingleBook)
